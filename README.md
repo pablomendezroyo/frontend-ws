@@ -1,3 +1,20 @@
+## How to run
+
+**run backend**
+
+```bash
+cd backend
+npm install
+node index.js
+```
+
+**run frontend**
+
+```bash
+npm run build
+npm start
+```
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
