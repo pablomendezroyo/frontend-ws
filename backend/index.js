@@ -1,61 +1,41 @@
 const express = require("express");
 const http = require("http");
-const WebSocket = require("ws");
+const socketIo = require("socket.io");
 const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
 // Mock data
-const welcomeMessage = {
+const data = {
   message: "Hello from the backend!",
 };
 
-const todoList = [
-  {
-    id: 1,
-    title: "Learn React",
-    completed: false,
-  },
-  {
-    id: 2,
-    title: "Learn WebSockets",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Learn Node.js",
-    completed: false,
-  },
-];
+io.on("connection", (socket) => {
+  console.log("New client connected");
 
-wss.on("connection", (ws) => {
-  ws.on("message", (message) => {
-    console.log("received: %s", message);
-
-    // When backend receives 'getData' message, send back the mock data.
-    if (message === "getData") {
-      ws.send(JSON.stringify(welcomeMessage));
-    }
-
-    // When backend receives 'getTodoList' message, send back the mock data.
-    if (message === "getTodoList") {
-      ws.send(JSON.stringify(todoList));
-    }
+  socket.on("getData", () => {
+    socket.emit("data", data);
   });
 
-  // Send a welcome message when a connection is established.
-  ws.send("Connected to backend");
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
 });
 
-app.use(cors()); // To allow cross-origin requests
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
-const PORT = 6000;
+const PORT = 4000;
 server.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
